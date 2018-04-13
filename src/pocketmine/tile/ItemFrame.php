@@ -66,13 +66,13 @@ class ItemFrame extends Spawnable{
 	}
 
 	public function dropItem(){
-        if(lcg_value() <= $this->getItemDropChance()){
-            $this->level->dropItem($this->getBlock(), $this->getItem());
-        }
+		if(lcg_value() <= $this->getItemDropChance()){
+			$this->level->dropItem($this->getBlock(), $this->getItem());
+		}
 
-        $this->setItem(null);
-        $this->setItemRotation(0);
-    }
+		$this->setItem(null);
+		$this->setItemRotation(0);
+	}
 
 	public function getItemRotation() : int{
 		return $this->namedtag->ItemRotation->getValue();

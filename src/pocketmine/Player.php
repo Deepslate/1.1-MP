@@ -2425,21 +2425,21 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 				$ev = new PlayerInteractEvent($this, $this->inventory->getItemInHand(), $target, $packet->face, $target->getId() === 0 ? PlayerInteractEvent::LEFT_CLICK_AIR : PlayerInteractEvent::LEFT_CLICK_BLOCK);
 				$this->getServer()->getPluginManager()->callEvent($ev);
 
-                $tile = $this->level->getTile($pos);
-                if($tile instanceof ItemFrame and !$this->isCreative()){
-                    /**
-                     * When an item frame with an item is left-clicked in survival there are three ItemFrameDropItem packets sent
-                     * and one PlayerActionPacket. To prevent calling four events we handle item frame dropping item in survival
-                     * here. For handling the same action in creative @see Player::handleItemFrameDropItem().
-                     */
-                    if($ev->isCancelled()){
-                        $tile->spawnTo($this);
-                        break;
-                    }
+				$tile = $this->level->getTile($pos);
+				if($tile instanceof ItemFrame and !$this->isCreative()){
+					/**
+					 * When an item frame with an item is left-clicked in survival there are three ItemFrameDropItem packets sent
+					 * and one PlayerActionPacket. To prevent calling four events we handle item frame dropping item in survival
+					 * here. For handling the same action in creative @see Player::handleItemFrameDropItem().
+					 */
+					if($ev->isCancelled()){
+						$tile->spawnTo($this);
+						break;
+					}
 
-                    $tile->dropItem();
-                    break;
-                }
+					$tile->dropItem();
+					break;
+				}
 
 				if($ev->isCancelled()){
 					$this->inventory->sendHeldItem($this);
@@ -2453,7 +2453,7 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 				}
 
 				if(!$this->isCreative()){
-                    //TODO: improve this to take stuff like swimming, ladders, enchanted tools into account, fix wrong tool break time calculations for bad tools (pmmp/PocketMine-MP#211)
+					//TODO: improve this to take stuff like swimming, ladders, enchanted tools into account, fix wrong tool break time calculations for bad tools (pmmp/PocketMine-MP#211)
 					$breakTime = \ceil($target->getBreakTime($this->inventory->getItemInHand()) * 20);
 					if($breakTime > 0){
 						$this->level->broadcastLevelEvent($pos, LevelEventPacket::EVENT_BLOCK_START_BREAK, (int) (65535 / $breakTime));
@@ -3005,11 +3005,11 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 
 		$tile = $this->level->getTile($this->temporalVector->setComponents($packet->x, $packet->y, $packet->z));
 		if($tile instanceof ItemFrame and $this->isCreative()){
-            /**
-             * When an item frame with an item is left-clicked in creative there is only one ItemFrameDropItem packet sent.
-             * But due to a client bug in MCPE 1.1 the situation in survival mode is different.
-             * So for handling the same action in survival @see Player::handlePlayerAction()
-             */
+			/**
+			 * When an item frame with an item is left-clicked in creative there is only one ItemFrameDropItem packet sent.
+			 * But due to a client bug in MCPE 1.1 the situation in survival mode is different.
+			 * So for handling the same action in survival @see Player::handlePlayerAction()
+			 */
 
 			$ev = new PlayerInteractEvent($this, $this->inventory->getItemInHand(), $tile->getBlock(), 5 - $tile->getBlock()->getDamage(), PlayerInteractEvent::LEFT_CLICK_BLOCK);
 			$this->server->getPluginManager()->callEvent($ev);
