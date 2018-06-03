@@ -313,7 +313,7 @@ abstract class BaseInventory implements Inventory{
 			}
 		}
 
-		for($i = 0; $i < $this->getSize(); ++$i){
+		for($i = 0; $i < $this->size; ++$i){
 			$item = $this->getItem($i);
 			if($item->getId() === Item::AIR or $item->getCount() <= 0){
 				continue;
