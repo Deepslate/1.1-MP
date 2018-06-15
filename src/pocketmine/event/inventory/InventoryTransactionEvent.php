@@ -25,7 +25,7 @@ namespace pocketmine\event\inventory;
 
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
-use pocketmine\inventory\TransactionGroup;
+use pocketmine\inventory\transaction\TransactionGroup;
 
 /**
  * Called when there is a transaction between two Inventory objects.

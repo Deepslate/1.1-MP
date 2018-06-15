@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory;
+namespace pocketmine\inventory\recipe;
 
 class BigShapedRecipe extends ShapedRecipe{
 

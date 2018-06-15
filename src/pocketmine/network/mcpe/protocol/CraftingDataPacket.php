@@ -26,9 +26,9 @@ namespace pocketmine\network\mcpe\protocol;
 use pocketmine\utils\Binary;
 
 
-use pocketmine\inventory\FurnaceRecipe;
-use pocketmine\inventory\ShapedRecipe;
-use pocketmine\inventory\ShapelessRecipe;
+use pocketmine\inventory\recipe\FurnaceRecipe;
+use pocketmine\inventory\recipe\ShapedRecipe;
+use pocketmine\inventory\recipe\ShapelessRecipe;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\utils\BinaryStream;

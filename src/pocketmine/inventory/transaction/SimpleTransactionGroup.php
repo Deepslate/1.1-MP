@@ -21,9 +21,11 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory;
+namespace pocketmine\inventory\transaction;
 
 use pocketmine\event\inventory\InventoryTransactionEvent;
+use pocketmine\inventory\Inventory;
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\Server;

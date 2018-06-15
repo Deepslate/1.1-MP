@@ -21,7 +21,9 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory;
+namespace pocketmine\inventory\transaction;
+
+use pocketmine\inventory\Inventory;
 
 interface TransactionGroup{
 	/**

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory;
+namespace pocketmine\inventory\recipe;
 
 use pocketmine\item\Item;
 use pocketmine\utils\UUID;
