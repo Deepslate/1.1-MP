@@ -23,41 +23,12 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
-interface TransactionGroup{
+use pocketmine\utils\UUID;
 
-	/**
-	 * @return float
-	 */
-	public function getCreationTime() : float;
+class MultiRecipe{
+	private $uuid;
 
-	/**
-	 * @return Transaction[]
-	 */
-	public function getTransactions() : array;
-
-	/**
-	 * @return Inventory[]
-	 */
-	public function getInventories() : array;
-
-	/**
-	 * @param Transaction $transaction
-	 */
-	public function addTransaction(Transaction $transaction);
-
-	/**
-	 * @return bool
-	 */
-	public function canExecute() : bool;
-
-	/**
-	 * @return bool
-	 */
-	public function execute() : bool;
-
-	/**
-	 * @return bool
-	 */
-	public function hasExecuted() : bool;
-
+	public function __construct(UUID $uuid){
+		$this->uuid = $uuid;
+	}
 }

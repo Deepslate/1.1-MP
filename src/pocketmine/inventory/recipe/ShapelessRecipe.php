@@ -32,7 +32,7 @@ class ShapelessRecipe implements Recipe{
 	private $output;
 
 	/** @var UUID|null */
-	private $id = \null;
+	private $id = null;
 
 	/** @var Item[] */
 	private $ingredients = [];
@@ -52,7 +52,7 @@ class ShapelessRecipe implements Recipe{
 	 * @param UUID $id
 	 */
 	public function setId(UUID $id){
-		if($this->id !== \null){
+		if($this->id !== null){
 			throw new \InvalidStateException("Id is already set");
 		}
 
@@ -71,7 +71,7 @@ class ShapelessRecipe implements Recipe{
 	 * @throws \InvalidArgumentException
 	 */
 	public function addIngredient(Item $item) : ShapelessRecipe{
-		if(\count($this->ingredients) >= 9){
+		if(count($this->ingredients) >= 9){
 			throw new \InvalidArgumentException("Shapeless recipes cannot have more than 9 ingredients");
 		}
 

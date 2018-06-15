@@ -23,25 +23,39 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
-use pocketmine\item\Item;
-use pocketmine\utils\UUID;
-
-interface Recipe{
+interface TransactionGroup{
+	/**
+	 * @return float
+	 */
+	public function getCreationTime() : float;
 
 	/**
-	 * @return Item
+	 * @return Transaction[]
 	 */
-	public function getResult() : Item;
-
-	public function registerToCraftingManager();
+	public function getTransactions() : array;
 
 	/**
-	 * @return UUID|null
+	 * @return Inventory[]
 	 */
-	public function getId();
+	public function getInventories() : array;
 
 	/**
-	 * @param UUID $id
+	 * @param Transaction $transaction
 	 */
-	public function setId(UUID $id);
+	public function addTransaction(Transaction $transaction);
+
+	/**
+	 * @return bool
+	 */
+	public function canExecute() : bool;
+
+	/**
+	 * @return bool
+	 */
+	public function execute() : bool;
+
+	/**
+	 * @return bool
+	 */
+	public function hasExecuted() : bool;
 }

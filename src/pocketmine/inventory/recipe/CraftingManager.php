@@ -33,7 +33,6 @@ use pocketmine\utils\MainLogger;
 use pocketmine\utils\UUID;
 
 class CraftingManager{
-
 	/** @var Recipe[] */
 	public $recipes = [];
 
@@ -48,6 +47,9 @@ class CraftingManager{
 	/** @var CraftingDataPacket */
 	private $craftingDataCache;
 
+	/**
+	 * @throws \Exception
+	 */
 	public function __construct(){
 		// load recipes from src/pocketmine/resources/recipes.json
 		$recipes = new Config(Server::getInstance()->getFilePath() . "src/pocketmine/resources/recipes.json", Config::JSON, []);
@@ -70,7 +72,7 @@ class CraftingManager{
 					$first = $recipe["output"][0];
 					$result = new ShapedRecipe(Item::jsonDeserialize($first), $recipe["height"], $recipe["width"]);
 
-					$shape = \array_chunk($recipe["input"], $recipe["width"]);
+					$shape = array_chunk($recipe["input"], $recipe["width"]);
 					foreach($shape as $y => $row){
 						foreach($row as $x => $ingredient){
 							$result->addIngredient($x, $y, Item::jsonDeserialize($ingredient));
@@ -98,7 +100,7 @@ class CraftingManager{
 	public function buildCraftingDataCache(){
 		Timings::$craftingDataCacheRebuildTimer->startTiming();
 		$pk = new CraftingDataPacket();
-		$pk->cleanRecipes = \true;
+		$pk->cleanRecipes = true;
 
 		foreach($this->recipes as $recipe){
 			if($recipe instanceof ShapedRecipe){
@@ -124,7 +126,7 @@ class CraftingManager{
 	 * @return CraftingDataPacket
 	 */
 	public function getCraftingDataPacket() : CraftingDataPacket{
-		if($this->craftingDataCache === \null){
+		if($this->craftingDataCache === null){
 			$this->buildCraftingDataCache();
 		}
 
@@ -155,7 +157,7 @@ class CraftingManager{
 	 */
 	public function getRecipe(UUID $id){
 		$index = $id->toBinary();
-		return $this->recipes[$index] ?? \null;
+		return $this->recipes[$index] ?? null;
 	}
 
 	/**
@@ -184,7 +186,7 @@ class CraftingManager{
 			return $this->furnaceRecipes[$input->getId() . ":?"];
 		}
 
-		return \null;
+		return null;
 	}
 
 	/**
@@ -197,7 +199,7 @@ class CraftingManager{
 		$hash = "";
 		foreach($ingredients as $v){
 			foreach($v as $item){
-				if($item !== \null){
+				if($item !== null){
 					/** @var Item $item */
 					$hash .= $item->getId() . ":" . ($item->hasAnyDamageValue() ? "?" : $item->getDamage()) . "x" . $item->getCount() . ",";
 				}
@@ -207,7 +209,7 @@ class CraftingManager{
 		}
 
 		$this->recipeLookup[$result->getId() . ":" . $result->getDamage()][$hash] = $recipe;
-		$this->craftingDataCache = \null;
+		$this->craftingDataCache = null;
 	}
 
 	/**
@@ -218,12 +220,12 @@ class CraftingManager{
 		$this->recipes[$recipe->getId()->toBinary()] = $recipe;
 		$hash = "";
 		$ingredients = $recipe->getIngredientList();
-		\usort($ingredients, [$this, "sort"]);
+		usort($ingredients, [$this, "sort"]);
 		foreach($ingredients as $item){
 			$hash .= $item->getId() . ":" . ($item->hasAnyDamageValue() ? "?" : $item->getDamage()) . "x" . $item->getCount() . ",";
 		}
 		$this->recipeLookup[$result->getId() . ":" . $result->getDamage()][$hash] = $recipe;
-		$this->craftingDataCache = \null;
+		$this->craftingDataCache = null;
 	}
 
 	/**
@@ -232,7 +234,7 @@ class CraftingManager{
 	public function registerFurnaceRecipe(FurnaceRecipe $recipe){
 		$input = $recipe->getInput();
 		$this->furnaceRecipes[$input->getId() . ":" . ($input->hasAnyDamageValue() ? "?" : $input->getDamage())] = $recipe;
-		$this->craftingDataCache = \null;
+		$this->craftingDataCache = null;
 	}
 
 	/**
@@ -241,24 +243,24 @@ class CraftingManager{
 	 */
 	public function matchRecipe(ShapelessRecipe $recipe) : bool{
 		if(!isset($this->recipeLookup[$idx = $recipe->getResult()->getId() . ":" . $recipe->getResult()->getDamage()])){
-			return \false;
+			return false;
 		}
 
 		$hash = "";
 		$ingredients = $recipe->getIngredientList();
-		\usort($ingredients, [$this, "sort"]);
+		usort($ingredients, [$this, "sort"]);
 		foreach($ingredients as $item){
 			$hash .= $item->getId() . ":" . ($item->hasAnyDamageValue() ? "?" : $item->getDamage()) . "x" . $item->getCount() . ",";
 		}
 
 		if(isset($this->recipeLookup[$idx][$hash])){
-			return \true;
+			return true;
 		}
 
-		$hasRecipe = \null;
+		$hasRecipe = null;
 		foreach($this->recipeLookup[$idx] as $possibleRecipe){
 			if($possibleRecipe instanceof ShapelessRecipe){
-				if($possibleRecipe->getIngredientCount() !== \count($ingredients)){
+				if($possibleRecipe->getIngredientCount() !== count($ingredients)){
 					continue;
 				}
 				$checkInput = $possibleRecipe->getIngredientList();
@@ -266,7 +268,7 @@ class CraftingManager{
 					$amount = $item->getCount();
 					foreach($checkInput as $k => $checkItem){
 						if($checkItem->equals($item, !$checkItem->hasAnyDamageValue(), $checkItem->hasCompoundTag())){
-							$remove = \min($checkItem->getCount(), $amount);
+							$remove = min($checkItem->getCount(), $amount);
 							$checkItem->setCount($checkItem->getCount() - $remove);
 							if($checkItem->getCount() === 0){
 								unset($checkInput[$k]);
@@ -279,7 +281,7 @@ class CraftingManager{
 					}
 				}
 
-				if(\count($checkInput) === 0){
+				if(count($checkInput) === 0){
 					$hasRecipe = $possibleRecipe;
 					break;
 				}
@@ -289,8 +291,7 @@ class CraftingManager{
 			}
 		}
 
-		return $hasRecipe !== \null;
-
+		return $hasRecipe !== null;
 	}
 
 	/**
@@ -307,5 +308,4 @@ class CraftingManager{
 			$this->registerFurnaceRecipe($recipe);
 		}
 	}
-
 }

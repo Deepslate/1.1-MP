@@ -28,9 +28,8 @@ use pocketmine\Server;
 use pocketmine\utils\UUID;
 
 class FurnaceRecipe implements Recipe{
-
 	/** @var UUID|null */
-	private $id = \null;
+	private $id = null;
 
 	/** @var Item */
 	private $output;
@@ -58,7 +57,7 @@ class FurnaceRecipe implements Recipe{
 	 * @param UUID $id
 	 */
 	public function setId(UUID $id){
-		if($this->id !== \null){
+		if($this->id !== null){
 			throw new \InvalidStateException("Id is already set");
 		}
 

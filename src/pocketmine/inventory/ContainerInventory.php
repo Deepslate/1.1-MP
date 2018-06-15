@@ -31,10 +31,12 @@ use pocketmine\Player;
 abstract class ContainerInventory extends BaseInventory{
 	public function onOpen(Player $who){
 		parent::onOpen($who);
+
 		$pk = new ContainerOpenPacket();
 		$pk->windowid = $who->getWindowId($this);
 		$pk->type = $this->getType()->getNetworkType();
 		$holder = $this->getHolder();
+
 		if($holder instanceof Vector3){
 			$pk->x = $holder->getX();
 			$pk->y = $holder->getY();
@@ -52,6 +54,7 @@ abstract class ContainerInventory extends BaseInventory{
 		$pk = new ContainerClosePacket();
 		$pk->windowid = $who->getWindowId($this);
 		$who->dataPacket($pk);
+
 		parent::onClose($who);
 	}
 }

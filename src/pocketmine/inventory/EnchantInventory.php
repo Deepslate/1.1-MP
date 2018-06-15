@@ -35,6 +35,7 @@ class EnchantInventory extends ContainerInventory{
 	 * @return FakeBlockMenu
 	 */
 	public function getHolder(){
+		/** @noinspection PhpIncompatibleReturnTypeInspection */
 		return $this->holder;
 	}
 

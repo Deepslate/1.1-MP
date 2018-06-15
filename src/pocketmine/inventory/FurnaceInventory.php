@@ -35,6 +35,7 @@ class FurnaceInventory extends ContainerInventory{
 	 * @return Furnace
 	 */
 	public function getHolder(){
+		/** @noinspection PhpIncompatibleReturnTypeInspection */
 		return $this->holder;
 	}
 

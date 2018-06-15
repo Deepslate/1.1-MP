@@ -38,13 +38,12 @@ use pocketmine\Player;
 use pocketmine\Server;
 
 class PlayerInventory extends BaseInventory{
-
 	protected $itemInHandIndex = 0;
 	/** @var int[] */
 	protected $hotbar;
 
 	public function __construct(Human $player){
-		$this->resetHotbar(\false);
+		$this->resetHotbar(false);
 		parent::__construct($player, InventoryType::get(InventoryType::PLAYER));
 	}
 
@@ -66,14 +65,14 @@ class PlayerInventory extends BaseInventory{
 	 *
 	 * @return bool if the equipment change was successful, false if not.
 	 */
-	public function equipItem(int $hotbarSlot, $inventorySlot = \null) : bool{
-		if($inventorySlot === \null){
+	public function equipItem(int $hotbarSlot, $inventorySlot = null) : bool{
+		if($inventorySlot === null){
 			$inventorySlot = $this->getHotbarSlotIndex($hotbarSlot);
 		}
 
 		if($hotbarSlot < 0 or $hotbarSlot >= $this->getHotbarSize() or $inventorySlot < -1 or $inventorySlot >= $this->getSize()){
 			$this->sendContents($this->getHolder());
-			return \false;
+			return false;
 		}
 
 		if($inventorySlot === -1){
@@ -86,13 +85,13 @@ class PlayerInventory extends BaseInventory{
 
 		if($ev->isCancelled()){
 			$this->sendContents($this->getHolder());
-			return \false;
+			return false;
 		}
 
 		$this->setHotbarSlotIndex($hotbarSlot, $inventorySlot);
-		$this->setHeldItemIndex($hotbarSlot, \false);
+		$this->setHeldItemIndex($hotbarSlot, false);
 
-		return \true;
+		return true;
 	}
 
 	/**
@@ -121,7 +120,7 @@ class PlayerInventory extends BaseInventory{
 			throw new \InvalidArgumentException("Inventory slot index \"$inventorySlot\" is out of range");
 		}
 
-		if($inventorySlot !== -1 and ($alreadyEquippedIndex = \array_search($inventorySlot, $this->hotbar)) !== \false){
+		if($inventorySlot !== -1 and ($alreadyEquippedIndex = array_search($inventorySlot, $this->hotbar)) !== false){
 			/* Swap the slots
 			 * This assumes that the equipped slot can only be equipped in one other slot
 			 * it will not account for ancient bugs where the same slot ended up linked to several hotbar slots.
@@ -152,8 +151,8 @@ class PlayerInventory extends BaseInventory{
 	 * Resets hotbar links to their original defaults.
 	 * @param bool $send Whether to send changes to the holder.
 	 */
-	public function resetHotbar(bool $send = \true){
-		$this->hotbar = \range(0, $this->getHotbarSize() - 1, 1);
+	public function resetHotbar(bool $send = true){
+		$this->hotbar = range(0, $this->getHotbarSize() - 1, 1);
 		if($send){
 			$this->sendContents($this->getHolder());
 		}
@@ -174,7 +173,7 @@ class PlayerInventory extends BaseInventory{
 	 * @param bool $send  Whether to send updates back to the inventory holder. This should usually be true for plugin calls.
 	 *                    It should only be false to prevent feedback loops of equipment packets between client and server.
 	 */
-	public function setHeldItemIndex($index, $send = \true){
+	public function setHeldItemIndex($index, $send = true){
 		if($index >= 0 and $index < $this->getHotbarSize()){
 			$this->itemInHandIndex = $index;
 
@@ -242,14 +241,14 @@ class PlayerInventory extends BaseInventory{
 		$pk->hotbarSlot = $this->getHeldItemIndex();
 		$pk->windowId = ContainerIds::INVENTORY;
 
-		if(!\is_array($target)){
+		if(!is_array($target)){
 			$target->dataPacket($pk);
 			if($this->getHeldItemSlot() !== -1 and $target === $this->getHolder()){
 				$this->sendSlot($this->getHeldItemSlot(), $target);
 			}
 		}else{
 			$this->getHolder()->getLevel()->getServer()->broadcastPacket($target, $pk);
-			if($this->getHeldItemSlot() !== -1 and \in_array($this->getHolder(), $target, \true)){
+			if($this->getHeldItemSlot() !== -1 and in_array($this->getHolder(), $target, true)){
 				$this->sendSlot($this->getHeldItemSlot(), $this->getHolder());
 			}
 		}
@@ -320,7 +319,7 @@ class PlayerInventory extends BaseInventory{
 
 	public function setItem(int $index, Item $item) : bool{
 		if($index < 0 or $index >= $this->size){
-			return \false;
+			return false;
 		}elseif($item->getId() === 0 or $item->getCount() <= 0){
 			return $this->clear($index);
 		}
@@ -329,14 +328,14 @@ class PlayerInventory extends BaseInventory{
 			Server::getInstance()->getPluginManager()->callEvent($ev = new EntityArmorChangeEvent($this->getHolder(), $this->getItem($index), $item, $index));
 			if($ev->isCancelled() and $this->getHolder() instanceof Human){
 				$this->sendArmorSlot($index, $this->getViewers());
-				return \false;
+				return false;
 			}
 			$item = $ev->getNewItem();
 		}else{
 			Server::getInstance()->getPluginManager()->callEvent($ev = new EntityInventoryChangeEvent($this->getHolder(), $this->getItem($index), $item, $index));
 			if($ev->isCancelled()){
 				$this->sendSlot($index, $this->getViewers());
-				return \false;
+				return false;
 			}
 			$item = $ev->getNewItem();
 		}
@@ -346,7 +345,7 @@ class PlayerInventory extends BaseInventory{
 		$this->slots[$index] = clone $item;
 		$this->onSlotChange($index, $old);
 
-		return \true;
+		return true;
 	}
 
 	public function clear(int $index) : bool{
@@ -361,7 +360,7 @@ class PlayerInventory extends BaseInventory{
 					}else{
 						$this->sendSlot($index, $this->getViewers());
 					}
-					return \false;
+					return false;
 				}
 				$item = $ev->getNewItem();
 			}else{
@@ -372,7 +371,7 @@ class PlayerInventory extends BaseInventory{
 					}else{
 						$this->sendSlot($index, $this->getViewers());
 					}
-					return \false;
+					return false;
 				}
 				$item = $ev->getNewItem();
 			}
@@ -385,7 +384,7 @@ class PlayerInventory extends BaseInventory{
 			$this->onSlotChange($index, $old);
 		}
 
-		return \true;
+		return true;
 	}
 
 	/**
@@ -472,7 +471,6 @@ class PlayerInventory extends BaseInventory{
 
 		foreach($target as $player){
 			if($player === $this->getHolder()){
-				/** @var Player $player */
 				$pk2 = new ContainerSetSlotPacket();
 				$pk2->windowid = ContainerIds::ARMOR;
 				$pk2->slot = $index - $this->getSize();
@@ -512,7 +510,7 @@ class PlayerInventory extends BaseInventory{
 					$pk->hotbar[] = $index <= -1 ? -1 : $index + $this->getHotbarSize();
 				}
 			}
-			if(($id = $player->getWindowId($this)) === -1 or $player->spawned !== \true){
+			if(($id = $player->getWindowId($this)) === -1 or $player->spawned !== true){
 				$this->close($player);
 				continue;
 			}
@@ -549,7 +547,6 @@ class PlayerInventory extends BaseInventory{
 
 		foreach($target as $player){
 			if($player === $this->getHolder()){
-				/** @var Player $player */
 				$pk->windowid = 0;
 				$player->dataPacket(clone $pk);
 			}else{
@@ -567,7 +564,7 @@ class PlayerInventory extends BaseInventory{
 	 * @return Human|Player
 	 */
 	public function getHolder(){
-		return parent::getHolder();
+		/** @noinspection PhpIncompatibleReturnTypeInspection */
+		return $this->holder;
 	}
-
 }

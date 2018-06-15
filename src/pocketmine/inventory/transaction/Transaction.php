@@ -23,14 +23,31 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
-use pocketmine\utils\UUID;
+use pocketmine\item\Item;
 
-class MultiRecipe{
+interface Transaction{
+	/**
+	 * @return Inventory
+	 */
+	public function getInventory() : Inventory;
 
-	private $uuid;
+	/**
+	 * @return int
+	 */
+	public function getSlot() : int;
 
-	public function __construct(UUID $uuid){
-		$this->uuid = $uuid;
-	}
+	/**
+	 * @return Item
+	 */
+	public function getSourceItem() : Item;
 
+	/**
+	 * @return Item
+	 */
+	public function getTargetItem() : Item;
+
+	/**
+	 * @return float
+	 */
+	public function getCreationTime() : float;
 }

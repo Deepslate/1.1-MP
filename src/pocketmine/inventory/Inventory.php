@@ -81,7 +81,7 @@ interface Inventory{
 	 *
 	 * Returns the Items that did not fit.
 	 *
-	 * @param Item[] ...$slots
+	 * @param Item ...$slots
 	 *
 	 * @return Item[]
 	 */
@@ -100,7 +100,7 @@ interface Inventory{
 	 * Removes the given Item from the inventory.
 	 * It will return the Items that couldn't be removed.
 	 *
-	 * @param Item[] ...$slots
+	 * @param Item ...$slots
 	 *
 	 * @return Item[]
 	 */
