@@ -33,7 +33,6 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 
 class Cake extends Transparent implements FoodSource{
-
 	protected $id = self::CAKE_BLOCK;
 
 	public function __construct(int $meta = 0){
@@ -49,7 +48,6 @@ class Cake extends Transparent implements FoodSource{
 	}
 
 	protected function recalculateBoundingBox(){
-
 		$f = $this->getDamage() * 0.125; //1 slice width
 
 		return new AxisAlignedBB(

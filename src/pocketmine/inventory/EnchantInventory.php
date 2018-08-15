@@ -24,27 +24,39 @@ declare(strict_types=1);
 namespace pocketmine\inventory;
 
 use pocketmine\level\Position;
+use pocketmine\network\mcpe\protocol\types\WindowTypes;
 use pocketmine\Player;
 
 class EnchantInventory extends ContainerInventory{
-	public function __construct(Position $pos){
-		parent::__construct(new FakeBlockMenu($this, $pos), InventoryType::get(InventoryType::ENCHANT_TABLE));
+	/** @var Position */
+	protected $holder;
+
+	public function __construct(Position $holder){
+		parent::__construct($holder);
+	}
+
+	public function getNetworkType() : int{
+		return WindowTypes::ENCHANTMENT;
+	}
+
+	public function getName() : string{
+		return "Enchantment Table";
+	}
+
+	public function getDefaultSize() : int{
+		//1 input, 1 lapis
+		return 2;
 	}
 
 	/**
-	 * @return FakeBlockMenu
+	 * @return Position
 	 */
 	public function getHolder(){
-		/** @noinspection PhpIncompatibleReturnTypeInspection */
 		return $this->holder;
 	}
 
-	public function onClose(Player $who){
+	public function onClose(Player $who) : void{
 		parent::onClose($who);
-
-		for($i = 0; $i < 2; ++$i){
-			$this->getHolder()->getLevel()->dropItem($this->getHolder()->add(0.5, 0.5, 0.5), $this->getItem($i));
-			$this->clear($i);
-		}
+		$this->dropContents($this->holder->getLevel(), $this->holder->add(0.5, 0.5, 0.5));
 	}
 }

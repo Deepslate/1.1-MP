@@ -28,19 +28,7 @@ use pocketmine\utils\UUID;
 
 interface Recipe{
 	/**
-	 * @return Item
+	 * @param CraftingManager $manager
 	 */
-	public function getResult() : Item;
-
-	public function registerToCraftingManager();
-
-	/**
-	 * @return UUID|null
-	 */
-	public function getId();
-
-	/**
-	 * @param UUID $id
-	 */
-	public function setId(UUID $id);
+	public function registerToCraftingManager(CraftingManager $manager) : void;
 }

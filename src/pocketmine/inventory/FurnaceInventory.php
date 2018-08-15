@@ -24,18 +24,34 @@ declare(strict_types=1);
 namespace pocketmine\inventory;
 
 use pocketmine\item\Item;
+use pocketmine\network\mcpe\protocol\types\WindowTypes;
 use pocketmine\tile\Furnace;
 
 class FurnaceInventory extends ContainerInventory{
+	/** @var Furnace */
+	protected $holder;
+
 	public function __construct(Furnace $tile){
-		parent::__construct($tile, InventoryType::get(InventoryType::FURNACE));
+		parent::__construct($tile);
+	}
+
+	public function getNetworkType() : int{
+		return WindowTypes::FURNACE;
+	}
+
+	public function getName() : string{
+		return "Furnace";
+	}
+
+	public function getDefaultSize() : int{
+		//1 input, 1 fuel, 1 output
+		return 3;
 	}
 
 	/**
 	 * @return Furnace
 	 */
 	public function getHolder(){
-		/** @noinspection PhpIncompatibleReturnTypeInspection */
 		return $this->holder;
 	}
 
@@ -87,9 +103,8 @@ class FurnaceInventory extends ContainerInventory{
 		return $this->setItem(0, $item);
 	}
 
-	public function onSlotChange($index, $before){
-		parent::onSlotChange($index, $before);
-
+	public function onSlotChange($index, $before, $send = true) : void{
+		parent::onSlotChange($index, $before, $send);
 		$this->getHolder()->scheduleUpdate();
 	}
 }

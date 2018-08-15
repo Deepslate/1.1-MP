@@ -47,7 +47,6 @@ use pocketmine\event\Timings;
 use pocketmine\event\TimingsHandler;
 use pocketmine\event\TranslationContainer;
 use pocketmine\inventory\recipe\CraftingManager;
-use pocketmine\inventory\InventoryType;
 use pocketmine\inventory\recipe\Recipe;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\ItemFactory;
@@ -1592,7 +1591,6 @@ class Server{
 
 			Entity::init();
 			Tile::init();
-			InventoryType::init();
 			BlockFactory::init();
 			Enchantment::init();
 			ItemFactory::init();

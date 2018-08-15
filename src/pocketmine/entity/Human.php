@@ -26,6 +26,7 @@ namespace pocketmine\entity;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
+use pocketmine\inventory\EntityInventoryEventProcessor;
 use pocketmine\inventory\InventoryHolder;
 use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item as ItemItem;
@@ -281,6 +282,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 	}
 
 	protected function initEntity(){
+		parent::initEntity();
 
 		$this->setPlayerFlag(self::DATA_PLAYER_FLAG_SLEEP, \false);
 		$this->setDataProperty(self::DATA_PLAYER_BED_POSITION, self::DATA_TYPE_POS, [0, 0, 0], \false);
@@ -301,15 +303,20 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 		}
 
 		if(isset($this->namedtag->Inventory) and $this->namedtag->Inventory instanceof ListTag){
+			$armorListener = $this->armorInventory->getEventProcessor();
+			$this->armorInventory->setEventProcessor(null);
+
 			foreach($this->namedtag->Inventory as $item){
 				if($item["Slot"] >= 0 and $item["Slot"] < 9){ //Hotbar
 					$this->inventory->setHotbarSlotIndex($item["Slot"], isset($item["TrueSlot"]) ? $item["TrueSlot"] : -1);
 				}elseif($item["Slot"] >= 100 and $item["Slot"] < 104){ //Armor
-					$this->inventory->setItem($this->inventory->getSize() + $item["Slot"] - 100, ItemItem::nbtDeserialize($item));
+					$this->armorInventory->setItem($item["Slot"] - 100, ItemItem::nbtDeserialize($item));
 				}else{
 					$this->inventory->setItem($item["Slot"] - 9, ItemItem::nbtDeserialize($item));
 				}
 			}
+
+			$this->armorInventory->setEventProcessor($armorListener);
 		}
 
 		if(isset($this->namedtag->SelectedInventorySlot) and $this->namedtag->SelectedInventorySlot instanceof IntTag){
@@ -318,7 +325,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 			$this->inventory->setHeldItemIndex(0, \false);
 		}
 
-		parent::initEntity();
+		$this->inventory->setEventProcessor(new EntityInventoryEventProcessor($this));
 
 		if(!isset($this->namedtag->foodLevel) or !($this->namedtag->foodLevel instanceof IntTag)){
 			$this->namedtag->foodLevel = new IntTag("foodLevel", (int) $this->getFood());
@@ -431,7 +438,10 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 	}
 
 	public function getDrops() : array{
-		return $this->inventory !== \null ? \array_values($this->inventory->getContents()) : [];
+		return array_merge(
+			$this->inventory !== null ? array_values($this->inventory->getContents()) : [],
+			$this->armorInventory !== null ? array_values($this->armorInventory->getContents()) : []
+		);
 	}
 
 	public function saveNBT(){
@@ -478,7 +488,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 
 			//Armor
 			for($slot = 100; $slot < 104; ++$slot){
-				$item = $this->inventory->getItem($this->inventory->getSize() + $slot - 100);
+				$item = $this->armorInventory->getItem($slot - 100);
 				if($item instanceof ItemItem and $item->getId() !== ItemItem::AIR){
 					$this->namedtag->Inventory[$slot] = $item->nbtSerialize($slot);
 				}
@@ -523,7 +533,7 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 			$pk->metadata = $this->dataProperties;
 			$player->dataPacket($pk);
 
-			$this->inventory->sendArmorContents($player);
+			$this->armorInventory->sendContents($player);
 
 			if(!($this instanceof Player)){
 				$this->server->removePlayerListData($this->getUniqueId(), [$player]);
@@ -533,10 +543,9 @@ class Human extends Creature implements ProjectileSource, InventoryHolder{
 
 	public function close(){
 		if(!$this->closed){
-			if($this->inventory !== \null){
-				foreach($this->inventory->getViewers() as $viewer){
-					$viewer->removeWindow($this->inventory);
-				}
+			if($this->inventory !== null){
+				$this->inventory->removeAllViewers();
+				$this->inventory = null;
 			}
 			parent::close();
 		}

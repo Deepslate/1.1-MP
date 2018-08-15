@@ -644,6 +644,44 @@ class Item implements ItemIds, \JsonSerializable{
 	}
 
 	/**
+	 * Pops an item from the stack and returns it, decreasing the stack count of this item stack by one.
+	 *
+	 * @param int $count
+	 *
+	 * @return Item
+	 * @throws \InvalidArgumentException if trying to pop more items than are on the stack
+	 */
+	public function pop(int $count = 1) : Item{
+		if($count > $this->count){
+			throw new \InvalidArgumentException("Cannot pop $count items from a stack of $this->count");
+		}
+
+		$item = clone $this;
+		$item->count = $count;
+
+		$this->count -= $count;
+
+		return $item;
+	}
+
+	/**
+	 * @param int $count
+	 * @return Item
+	 */
+	public function insert(int $count = 1) : Item{
+		if($this->count + $count > $this->getMaxStackSize()){
+			throw new \InvalidArgumentException("Cannot insert $count items to a stack of $this->count, max stack size is " . $this->getMaxStackSize());
+		}
+
+		$this->count += $count;
+		return $this;
+	}
+
+	public function isNull() : bool{
+		return $this->count <= 0 or $this->id === Item::AIR;
+	}
+
+	/**
 	 * Returns the name of the item, or the custom name if it is set.
 	 * @return string
 	 */
@@ -655,7 +693,7 @@ class Item implements ItemIds, \JsonSerializable{
 	 * @return bool
 	 */
 	final public function canBePlaced() : bool{
-		return $this->block !== \null and $this->block->canBePlaced();
+		return $this->getBlock()->canBePlaced();
 	}
 
 	/**
@@ -880,6 +918,16 @@ class Item implements ItemIds, \JsonSerializable{
 	}
 
 	/**
+	 * Returns whether the specified item stack has the same ID, damage, NBT and count as this item stack.
+	 * @param Item $other
+	 *
+	 * @return bool
+	 */
+	final public function equalsExact(Item $other) : bool{
+		return $this->equals($other, true, true) and $this->count === $other->count;
+	}
+
+	/**
 	 * @deprecated Use {@link Item#equals} instead, this method will be removed in the future.
 	 *
 	 * @param Item $item
@@ -922,9 +970,9 @@ class Item implements ItemIds, \JsonSerializable{
 	final public static function jsonDeserialize(array $data) : Item{
 		return ItemFactory::get(
 			(int) $data["id"],
-			(int) $data["damage"],
-			(int) $data["count"],
-			(string) ($data["nbt"] ?? \hex2bin($data["nbt_hex"])) //`nbt` key might contain old raw data
+			(int) ($data["damage"] ?? 0),
+			(int) ($data["count"] ?? 1),
+			(string) ($data["nbt"] ?? (isset($data["nbt_hex"]) ? hex2bin($data["nbt_hex"]) : "")) //`nbt` key might contain old raw data
 		);
 	}
 
@@ -991,11 +1039,9 @@ class Item implements ItemIds, \JsonSerializable{
 	}
 
 	public function __clone(){
-		if($this->block !== \null){
+		if($this->block !== null){
 			$this->block = clone $this->block;
 		}
-
-		$this->cachedNBT = \null;
+		$this->cachedNBT = null;
 	}
-
 }

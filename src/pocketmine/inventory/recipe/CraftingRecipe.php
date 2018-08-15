@@ -21,43 +21,44 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\inventory\transaction;
+namespace pocketmine\inventory\recipe;
 
-use pocketmine\inventory\Inventory;
+use pocketmine\item\Item;
+use pocketmine\utils\UUID;
 
-interface TransactionGroup{
-	/**
-	 * @return float
-	 */
-	public function getCreationTime() : float;
-
-	/**
-	 * @return Transaction[]
-	 */
-	public function getTransactions() : array;
+abstract class CraftingRecipe implements Recipe{
+	/** @var UUID|null */
+	protected $id = null;
 
 	/**
-	 * @return Inventory[]
+	 * @return UUID|null
 	 */
-	public function getInventories() : array;
+	public function getId() : ?UUID{
+		return $this->id;
+	}
 
 	/**
-	 * @param Transaction $transaction
+	 * @param UUID $id
 	 */
-	public function addTransaction(Transaction $transaction);
+	public function setId(UUID $id) : void{
+		if($this->id !== null){
+			throw new \InvalidStateException("Id is already set");
+		}
+
+		$this->id = $id;
+	}
 
 	/**
-	 * @return bool
+	 * Returns a list of items needed to craft this recipe. This MUST NOT include Air items or items with a zero count.
+	 *
+	 * @return Item[]
 	 */
-	public function canExecute() : bool;
+	abstract public function getIngredientList() : array;
 
 	/**
-	 * @return bool
+	 * Returns a list of items created by crafting this recipe.
+	 *
+	 * @return Item[]
 	 */
-	public function execute() : bool;
-
-	/**
-	 * @return bool
-	 */
-	public function hasExecuted() : bool;
+	abstract public function getResults() : array;
 }

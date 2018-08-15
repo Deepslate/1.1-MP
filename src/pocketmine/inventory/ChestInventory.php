@@ -26,23 +26,38 @@ namespace pocketmine\inventory;
 use pocketmine\level\Level;
 use pocketmine\network\mcpe\protocol\BlockEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\types\WindowTypes;
 use pocketmine\Player;
 use pocketmine\tile\Chest;
 
 class ChestInventory extends ContainerInventory{
+	/** @var Chest */
+	protected $holder;
+
 	public function __construct(Chest $tile){
-		parent::__construct($tile, InventoryType::get(InventoryType::CHEST));
+		parent::__construct($tile);
+	}
+
+	public function getNetworkType() : int{
+		return WindowTypes::CONTAINER;
+	}
+
+	public function getName() : string{
+		return "Chest";
+	}
+
+	public function getDefaultSize() : int{
+		return 27;
 	}
 
 	/**
 	 * @return Chest
 	 */
 	public function getHolder(){
-		/** @noinspection PhpIncompatibleReturnTypeInspection */
 		return $this->holder;
 	}
 
-	public function onOpen(Player $who){
+	public function onOpen(Player $who) : void{
 		parent::onOpen($who);
 
 		if(count($this->getViewers()) === 1 and ($level = $this->getHolder()->getLevel()) instanceof Level){
@@ -51,7 +66,7 @@ class ChestInventory extends ContainerInventory{
 		}
 	}
 
-	public function onClose(Player $who){
+	public function onClose(Player $who) : void{
 		if(count($this->getViewers()) === 1 and ($level = $this->getHolder()->getLevel()) instanceof Level){
 			$this->broadcastBlockEventPacket(1, 0); //chest close
 			$level->broadcastLevelSoundEvent($this->getHolder()->add(0.5, 0.5, 0.5), LevelSoundEventPacket::SOUND_CHEST_CLOSED);
@@ -60,7 +75,7 @@ class ChestInventory extends ContainerInventory{
 		parent::onClose($who);
 	}
 
-	private function broadcastBlockEventPacket(int $case1, int $case2){
+	protected function broadcastBlockEventPacket(int $case1, int $case2){ //todo: Check
 		$pk = new BlockEventPacket();
 		$pk->x = $this->getHolder()->getX();
 		$pk->y = $this->getHolder()->getY();

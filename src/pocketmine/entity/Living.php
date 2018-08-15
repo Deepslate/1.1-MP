@@ -30,6 +30,8 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
 use pocketmine\event\entity\EntityRegainHealthEvent;
 use pocketmine\event\Timings;
+use pocketmine\inventory\ArmorInventory;
+use pocketmine\inventory\ArmorInventoryEventProcessor;
 use pocketmine\item\Item as ItemItem;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\ByteTag;
@@ -57,10 +59,16 @@ abstract class Living extends Entity implements Damageable{
 	/** @var Effect[] */
 	protected $effects = [];
 
+	/** @var ArmorInventory */
+	protected $armorInventory;
+
 	abstract public function getName() : string;
 
 	protected function initEntity(){
 		parent::initEntity();
+
+		$this->armorInventory = new ArmorInventory($this);
+		$this->armorInventory->setEventProcessor(new ArmorInventoryEventProcessor($this));
 
 		if(isset($this->namedtag->HealF)){
 			$this->namedtag->Health = new FloatTag("Health", (float) $this->namedtag["HealF"]);
@@ -325,6 +333,13 @@ abstract class Living extends Entity implements Damageable{
 		}
 	}
 
+	/**
+	 * @return ArmorInventory
+	 */
+	public function getArmorInventory() : ArmorInventory{
+		return $this->armorInventory;
+	}
+
 	public function attack(EntityDamageEvent $source){
 		if($this->attackTime > 0 or $this->noDamageTicks > 0){
 			$lastCause = $this->getLastDamageCause();
@@ -565,5 +580,15 @@ abstract class Living extends Entity implements Damageable{
 		}
 
 		return \null;
+	}
+
+	public function close(){
+		if(!$this->closed){
+			if($this->armorInventory !== null){
+				$this->armorInventory->removeAllViewers();
+				$this->armorInventory = null;
+			}
+			parent::close();
+		}
 	}
 }

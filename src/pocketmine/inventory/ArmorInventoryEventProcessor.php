@@ -23,19 +23,25 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
-/**
- * Saves all the information regarding default inventory sizes and types
- */
-interface SlotType{
-	const RESULT = 0;
+use pocketmine\entity\Entity;
+use pocketmine\event\entity\EntityArmorChangeEvent;
+use pocketmine\item\Item;
+use pocketmine\Server;
 
-	const CRAFTING = 1; //Not used in Minecraft: PE yet
+class ArmorInventoryEventProcessor implements InventoryEventProcessor{
+	/** @var Entity */
+	private $entity;
 
-	const ARMOR = 2;
+	public function __construct(Entity $entity){
+		$this->entity = $entity;
+	}
 
-	const CONTAINER = 3;
+	public function onSlotChange(Inventory $inventory, int $slot, Item $oldItem, Item $newItem) : ?Item{
+		Server::getInstance()->getPluginManager()->callEvent($event = new EntityArmorChangeEvent($this->entity, $oldItem, $newItem, $slot));
+		if($event->isCancelled()){
+			return null;
+		}
 
-	const HOTBAR = 4;
-
-	const FUEL = 5;
+		return $event->getNewItem();
+	}
 }

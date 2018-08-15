@@ -45,7 +45,7 @@ class CraftingDataPacket extends DataPacket{
 
 	/** @var object[] */
 	public $entries = [];
-	public $cleanRecipes = \false;
+	public $cleanRecipes = false;
 
 	public $decodedEntries = [];
 
@@ -132,8 +132,11 @@ class CraftingDataPacket extends DataPacket{
 			$stream->putSlot($item);
 		}
 
-		$stream->putUnsignedVarInt(1);
-		$stream->putSlot($recipe->getResult());
+		$results = $recipe->getResults();
+		$stream->putUnsignedVarInt(count($results));
+		foreach($results as $result){
+			$stream->putSlot($result);
+		}
 
 		$stream->putUUID($recipe->getId());
 
@@ -150,8 +153,11 @@ class CraftingDataPacket extends DataPacket{
 			}
 		}
 
-		$stream->putUnsignedVarInt(1);
-		$stream->putSlot($recipe->getResult());
+		$results = $recipe->getResults();
+		$stream->putUnsignedVarInt(count($results));
+		foreach($results as $result){
+			$stream->putSlot($result);
+		}
 
 		$stream->putUUID($recipe->getId());
 
@@ -207,5 +213,4 @@ class CraftingDataPacket extends DataPacket{
 	public function handle(NetworkSession $session) : bool{
 		return $session->handleCraftingData($this);
 	}
-
 }

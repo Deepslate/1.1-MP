@@ -29,7 +29,6 @@ use pocketmine\block\Block;
  * Class used for Items that can be Blocks
  */
 class ItemBlock extends Item{
-
 	/**
 	 * @param Block $block
 	 * @param int   $meta Used in crafting recipes for any-damage ingredients (blocks must have meta values 0-15)
@@ -51,5 +50,4 @@ class ItemBlock extends Item{
 	public function getFuelTime() : int{
 		return $this->block->getFuelTime();
 	}
-
 }

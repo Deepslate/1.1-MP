@@ -23,17 +23,25 @@ declare(strict_types=1);
 
 namespace pocketmine\inventory;
 
-use pocketmine\level\Position;
+use pocketmine\entity\Entity;
+use pocketmine\event\entity\EntityInventoryChangeEvent;
+use pocketmine\item\Item;
+use pocketmine\Server;
 
-class FakeBlockMenu extends Position implements InventoryHolder{
-	private $inventory;
+class EntityInventoryEventProcessor implements InventoryEventProcessor{
+	/** @var Entity */
+	private $entity;
 
-	public function __construct(Inventory $inventory, Position $pos){
-		$this->inventory = $inventory;
-		parent::__construct($pos->x, $pos->y, $pos->z, $pos->level);
+	public function __construct(Entity $entity){
+		$this->entity = $entity;
 	}
 
-	public function getInventory(){
-		return $this->inventory;
+	public function onSlotChange(Inventory $inventory, int $slot, Item $oldItem, Item $newItem) : ?Item{
+		Server::getInstance()->getPluginManager()->callEvent($event = new EntityInventoryChangeEvent($this->entity, $oldItem, $newItem, $slot));
+		if($event->isCancelled()){
+			return null;
+		}
+
+		return $event->getNewItem();
 	}
 }

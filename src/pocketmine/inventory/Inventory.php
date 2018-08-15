@@ -30,7 +30,7 @@ use pocketmine\item\Item;
 use pocketmine\Player;
 
 interface Inventory{
-	const MAX_STACK = 64;
+	public const MAX_STACK = 64;
 
 	/**
 	 * @return int
@@ -45,7 +45,7 @@ interface Inventory{
 	/**
 	 * @param int $size
 	 */
-	public function setMaxStackSize(int $size);
+	public function setMaxStackSize(int $size) : void;
 
 	/**
 	 * @return string
@@ -68,12 +68,13 @@ interface Inventory{
 	 * Puts an Item in a slot.
 	 * If a plugin refuses the update or $index is invalid, it'll return false
 	 *
-	 * @param int  $index
+	 * @param int $index
 	 * @param Item $item
+	 * @param bool $send
 	 *
 	 * @return bool
 	 */
-	public function setItem(int $index, Item $item) : bool;
+	public function setItem(int $index, Item $item, bool $send = true) : bool;
 
 	/**
 	 * Stores the given Items in the inventory. This will try to fill
@@ -107,25 +108,28 @@ interface Inventory{
 	public function removeItem(Item ...$slots) : array;
 
 	/**
+	 * @param bool $includeEmpty
+	 *
 	 * @return Item[]
 	 */
-	public function getContents() : array;
+	public function getContents(bool $includeEmpty = false) : array;
 
 	/**
 	 * @param Item[] $items
+	 * @param bool $send
 	 */
-	public function setContents(array $items);
+	public function setContents(array $items, bool $send = true) : void;
 
 	/**
 	 * @param Player|Player[] $target
 	 */
-	public function sendContents($target);
+	public function sendContents($target) : void;
 
 	/**
 	 * @param int             $index
 	 * @param Player|Player[] $target
 	 */
-	public function sendSlot($index, $target);
+	public function sendSlot(int $index, $target) : void;
 
 	/**
 	 * Checks if the inventory contains any Item with the same material data.
@@ -152,10 +156,11 @@ interface Inventory{
 	 * -1 if not found, will check amount
 	 *
 	 * @param Item $item
+	 * @param bool $exact
 	 *
 	 * @return int
 	 */
-	public function first(Item $item) : int;
+	public function first(Item $item, bool $exact = false) : int;
 
 	/**
 	 * Returns the first empty slot, or -1 if not found
@@ -165,25 +170,37 @@ interface Inventory{
 	public function firstEmpty() : int;
 
 	/**
-	 * Will remove all the Items that has the same id and metadata (if not null)
-	 *
-	 * @param Item $item
-	 */
-	public function remove(Item $item);
-
-	/**
-	 * Will clear a specific slot
+	 * Returns whether the given slot is empty.
 	 *
 	 * @param int $index
 	 *
 	 * @return bool
 	 */
-	public function clear(int $index) : bool;
+	public function isSlotEmpty(int $index) : bool;
+
+	/**
+	 * Will remove all the Items that has the same id and metadata (if not null)
+	 *
+	 * @param Item $item
+	 */
+	public function remove(Item $item) : void;
+
+	/**
+	 * Will clear a specific slot
+	 *
+	 * @param int $index
+	 * @param bool $send
+	 *
+	 * @return bool
+	 */
+	public function clear(int $index, bool $send = true) : bool;
 
 	/**
 	 * Clears all the slots
+	 *
+	 * @param bool $send
 	 */
-	public function clearAll();
+	public function clearAll(bool $send = true) : void;
 
 	/**
 	 * Gets all the Players viewing the inventory
@@ -194,19 +211,9 @@ interface Inventory{
 	public function getViewers() : array;
 
 	/**
-	 * @return InventoryType
-	 */
-	public function getType() : InventoryType;
-
-	/**
-	 * @return InventoryHolder
-	 */
-	public function getHolder();
-
-	/**
 	 * @param Player $who
 	 */
-	public function onOpen(Player $who);
+	public function onOpen(Player $who) : void;
 
 	/**
 	 * Tries to open the inventory to a player
@@ -217,16 +224,35 @@ interface Inventory{
 	 */
 	public function open(Player $who) : bool;
 
-	public function close(Player $who);
+	public function close(Player $who) : void;
 
 	/**
 	 * @param Player $who
 	 */
-	public function onClose(Player $who);
+	public function onClose(Player $who) : void;
 
 	/**
-	 * @param int  $index
+	 * @param int $index
 	 * @param Item $before
+	 * @param bool $send
 	 */
-	public function onSlotChange($index, $before);
+	public function onSlotChange(int $index, Item $before, bool $send = true) : void;
+
+	/**
+	 * Returns whether the specified slot exists in the inventory.
+	 *
+	 * @param int $slot
+	 * @return bool
+	 */
+	public function slotExists(int $slot) : bool;
+
+	/**
+	 * @return null|InventoryEventProcessor
+	 */
+	public function getEventProcessor() : ?InventoryEventProcessor;
+
+	/**
+	 * @param null|InventoryEventProcessor $eventProcessor
+	 */
+	public function setEventProcessor(?InventoryEventProcessor $eventProcessor) : void;
 }
